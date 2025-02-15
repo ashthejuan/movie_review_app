@@ -135,6 +135,7 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
             fontWeight: FontWeight.bold
           ),
         ),
+        centerTitle: true,
         backgroundColor: Color(0xFF171738),
       ),
       body: reviews.isEmpty ? Center(
