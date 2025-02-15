@@ -59,6 +59,8 @@ class MovieReviewScreen extends StatefulWidget {
 
 class _MovieReviewScreenState extends State<MovieReviewScreen> {
   List<Map<String, String>> reviews = [];
+  bool _isLoading = false;
+  String? _errorMessage;
 
 
   final TextEditingController _movieNameController = TextEditingController();
@@ -73,47 +75,103 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
     _loadReviews();
   }
 
-  Future<void> _saveReviews() async{
-    _prefs.setStringList('reviews', reviews.map((review) => jsonEncode(review)).toList());
+  @override
+  void dispose() {
+    _movieNameController.dispose();
+    _genreController.dispose();
+    _reviewController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadReviews() async{
-    _prefs = await SharedPreferences.getInstance();
-    final savedReviews = _prefs.getStringList('reviews');
-    if (savedReviews!= null){
-      setState(() {
-        reviews = savedReviews.map((json) => Map<String, String>.from(jsonDecode(json))).toList();
-      });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try{
+      _prefs = await SharedPreferences.getInstance();
+        final savedReviews = _prefs.getStringList('reviews');
+        if (savedReviews!= null){
+          setState(() {
+            reviews = savedReviews.map((json) {
+              try{
+                return Map<String, String>.from(jsonDecode(json));
+              } catch(e) {
+                print("Error decoding review: $e");
+                return <String, String>{};
+              }
+            }).where((map)=>map.isNotEmpty).toList();
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _errorMessage = "Failed to load reviews: $e";
+        });
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+    
+  Future<void> _saveReviews() async {
+    try {
+      await _prefs.setStringList(
+          'reviews', reviews.map((review) => jsonEncode(review)).toList());
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save review: $e')),
+      );
     }
   }
 
-  void _addReview(){
-    if (_movieNameController.text.isNotEmpty && 
-        _genreController.text.isNotEmpty &&
-        _reviewController.text.isNotEmpty){
-          setState(() {
-            reviews.add({
-              'movieName': _movieNameController.text,
-              'genre': _genreController.text,
-              'review': _reviewController.text,
-            });
-          });
-
-          _saveReviews();
-
-          _movieNameController.clear();
-          _genreController.clear();
-          _reviewController.clear();
-
-          Navigator.of(context).pop();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please fill all fields')),
-          );
-        }
+  String? _validateInputs() {
+    if (_movieNameController.text.trim().isEmpty) {
+      return 'Movie name cannot be empty';
+    }
+    if (_genreController.text.trim().isEmpty) {
+      return 'Genre cannot be empty';
+    }
+    if (_reviewController.text.trim().isEmpty) {
+      return 'Review cannot be empty';
+    }
+    if (_reviewController.text.trim().length > 180) {
+      return 'Review must be less than 180 characters';
+    }
+    return null;
   }
 
+  void _addReview(){
+    final validationError = _validateInputs();
+    if (validationError != null){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(validationError)),
+      );
+      return;
+    }
 
+    try{
+      setState(() {
+        reviews.add({
+          'movieName': _movieNameController.text.trim(),
+          'genre': _genreController.text.trim(),
+          'review': _reviewController.text.trim(),
+        });
+      });
+
+      _saveReviews();
+
+      _movieNameController.clear();
+      _genreController.clear();
+      _reviewController.clear();
+
+      Navigator.of(context).pop();
+    }catch (e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to add review: $e")),
+      );
+    }
+  }
 
   void _deleteReview(int index){
     setState(() {
@@ -141,7 +199,7 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
               controller: _reviewController,
               maxLines: 3,
               maxLength: 180,
-              decoration: InputDecoration(labelText: 'Review (180 words max)'),
+              decoration: InputDecoration(labelText: 'Review (180 characters max)'),
             ),
           ],
         ),
@@ -174,12 +232,37 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
         centerTitle: true,
         backgroundColor: Color(0xFF171738),
       ),
-      body: reviews.isEmpty ? Center(
-        child: Text(
-          'No reviews yet. Tap "+" to add one.',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF171738)),
+      body: _isLoading
+      ? Center(child: CircularProgressIndicator())
+      : _errorMessage != null
+      ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              _errorMessage!,
+              style: TextStyle(color: Colors.red),
+              textAlign: TextAlign.center,
+            ),
+            ElevatedButton(
+              onPressed: _loadReviews,
+              child: Text('Retry'),
+            )
+          ],
         ),
       )
+    : reviews.isEmpty
+    ? Center(
+      child: Text(
+        'No Reviews Yet. Tap "+" to add one',
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF171738),
+        ),
+      ),
+    )
+
     : ListView.builder(
       itemCount: reviews.length,
       itemBuilder: (context, index) {
