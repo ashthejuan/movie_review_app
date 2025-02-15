@@ -127,7 +127,14 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Movie Review App'),
+        title: Text(
+          'Movie Review App',
+          style: TextStyle(
+            color: Color(0xFFC9CAD9),
+            fontSize: 20,
+            fontWeight: FontWeight.bold
+          ),
+        ),
         backgroundColor: Color(0xFF171738),
       ),
       body: reviews.isEmpty ? Center(
