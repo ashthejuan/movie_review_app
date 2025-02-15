@@ -5,6 +5,8 @@ void main() {
 }
 
 class MovieReviewApp extends StatelessWidget {
+  const MovieReviewApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -46,6 +48,8 @@ class MovieReviewApp extends StatelessWidget {
 }
 
 class MovieReviewScreen extends StatefulWidget {
+  const MovieReviewScreen({super.key});
+
   @override
   _MovieReviewScreenState createState() => _MovieReviewScreenState();
 }
