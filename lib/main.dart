@@ -60,23 +60,23 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
 
   final TextEditingController _movieNameController = TextEditingController();
   final TextEditingController _genreController = TextEditingController();
-  final TextEditingController _reviewContoller = TextEditingController();
+  final TextEditingController _reviewController = TextEditingController();
 
   void _addReview(){
     if (_movieNameController.text.isNotEmpty && 
         _genreController.text.isNotEmpty &&
-        _reviewContoller.text.isNotEmpty){
+        _reviewController.text.isNotEmpty){
           setState(() {
             reviews.add({
               'movieName': _movieNameController.text,
               'genre': _genreController.text,
-              'review': _reviewContoller.text,
+              'review': _reviewController.text,
             });
           });
 
           _movieNameController.clear();
           _genreController.clear();
-          _reviewContoller.clear();
+          _reviewController.clear();
 
           Navigator.of(context).pop();
         } else {
@@ -102,7 +102,7 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
               decoration: InputDecoration(labelText: 'Genre'),
             ),
             TextField(
-              controller: _reviewContoller,
+              controller: _reviewController,
               maxLines: 3,
               maxLength: 180,
               decoration: InputDecoration(labelText: 'Review (180 words max)'),
