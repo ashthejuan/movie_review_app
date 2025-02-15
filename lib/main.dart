@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MovieReviewApp());
@@ -62,6 +65,28 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
   final TextEditingController _genreController = TextEditingController();
   final TextEditingController _reviewController = TextEditingController();
 
+  late SharedPreferences _prefs;
+
+  @override
+  void initState(){
+    super.initState();
+    _loadReviews();
+  }
+
+  Future<void> _saveReviews() async{
+    _prefs.setStringList('reviews', reviews.map((review) => jsonEncode(review)).toList());
+  }
+
+  Future<void> _loadReviews() async{
+    _prefs = await SharedPreferences.getInstance();
+    final savedReviews = _prefs.getStringList('reviews');
+    if (savedReviews!= null){
+      setState(() {
+        reviews = savedReviews.map((json) => Map<String, String>.from(jsonDecode(json))).toList();
+      });
+    }
+  }
+
   void _addReview(){
     if (_movieNameController.text.isNotEmpty && 
         _genreController.text.isNotEmpty &&
@@ -74,6 +99,8 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
             });
           });
 
+          _saveReviews();
+
           _movieNameController.clear();
           _genreController.clear();
           _reviewController.clear();
@@ -85,6 +112,15 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
           );
         }
   }
+
+
+
+  void _deleteReview(int index){
+    setState(() {
+      reviews.removeAt(index);
+    });
+    _saveReviews();
+  }     
 
   void _showAddReviewDialog(){
     showDialog(context: context, builder: (context){
@@ -162,22 +198,36 @@ class _MovieReviewScreenState extends State<MovieReviewScreen> {
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Text(
-                review['movieName']!,
-                style: Theme.of(context).textTheme.titleLarge,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    review['movieName']!,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Genre: ${review['genre']}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    review['review']!,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
               ),
-              SizedBox(height: 8),
-              Text(
-                'Genre: ${review['genre']}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              SizedBox(height: 8),
-              Text(
-                review['review']!,
-                style: Theme.of(context).textTheme.bodySmall,
+              Positioned(
+                top: 8,
+                right: 8,
+                child: IconButton(
+                  icon: Icon(Icons.remove_circle, color: Colors.red),
+                  onPressed: () {
+                    _deleteReview(index); 
+                  },
+                ),
               ),
             ],
           ),
