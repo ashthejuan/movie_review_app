@@ -1,16 +1,45 @@
-# movie_review_app
+Movie Review App
+A new Flutter project designed to provide users with the latest movie reviews and ratings.
 
-A new Flutter project.
+Getting Started
+This project serves as a starting point for a Flutter application. To get up and running:
 
-## Getting Started
+Clone the repository:
+clone https://github.com/ashthejuan/movie_review_app.git
 
-This project is a starting point for a Flutter application.
+Navigate to the project directory:
+cd movie_review_app
 
-A few resources to get you started if this is your first Flutter project:
+Install dependencies:
+flutter pub get
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Run the application:
+flutter run
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+For those new to Flutter, consider exploring the following resources:
+Lab: Write your first Flutter app
+Cookbook: Useful Flutter samples
+
+For comprehensive guidance on Flutter development, refer to the official documentation, which offers tutorials, samples, and a full API reference.
+
+Project Structure
+The project comprises the following directories:
+android: Android-specific code and configurations.
+ios: iOS-specific code and configurations.
+lib: Main Dart codebase for the application.
+test: Unit and widget tests.
+web: Web-specific code and configurations.
+macos: macOS-specific code and configurations.
+linux: Linux-specific code and configurations.
+windows: Windows-specific code and configurations.
+
+Dependencies
+The project utilizes the following dependencies:
+
+Flutter SDK: Ensure you have the latest stable version installed.
+Dart SDK: Included with the Flutter SDK.
+
+For a complete list of dependencies, refer to the pubspec.yaml file.
+
+Credits
+Created by Akshit Dasgupta
