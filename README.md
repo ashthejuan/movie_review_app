@@ -1,5 +1,5 @@
 <h1>Movie Review App</h1>
-A new Flutter project designed to provide users with the latest movie reviews and ratings.
+A new Flutter project which lets users rate movies they've watched.
 
 <h2>Getting Started</h2>
 This project serves as a starting point for a Flutter application. To get up and running:
